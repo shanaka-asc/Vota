@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/Auth';
 import { motion } from 'framer-motion';
-import { Plus, BarChart2, ExternalLink, Calendar, Loader2, ArrowRight, Share2, Lock } from 'lucide-react';
+import { Plus, BarChart2, ExternalLink, Calendar, Loader2, ArrowRight, Share2, Lock, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const Dashboard = () => {
@@ -30,6 +30,25 @@ const Dashboard = () => {
             console.error('Error fetching polls:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeletePoll = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this poll? This action cannot be undone.')) return;
+
+        try {
+            const { error } = await supabase
+                .from('polls')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            // Update local state
+            setPolls(polls.filter(p => p.id !== id));
+        } catch (error) {
+            console.error('Error deleting poll:', error);
+            alert('Failed to delete poll');
         }
     };
 
@@ -129,6 +148,14 @@ const Dashboard = () => {
                                     <ExternalLink size={16} />
                                     <span>Vote Page</span>
                                 </Link>
+                                <button
+                                    onClick={() => handleDeletePoll(poll.id)}
+                                    className="btn-glass"
+                                    style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error)', borderColor: 'rgba(239, 68, 68, 0.2)', padding: 0 }}
+                                    title="Delete Poll"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
                             </div>
                         </motion.div>
                     ))}

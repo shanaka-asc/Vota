@@ -190,10 +190,22 @@ const CreatePoll = () => {
                         })
 
                     if (optionsToUpsert.length > 0) {
-                        const { error: optError } = await supabase
-                            .from('poll_options')
-                            .upsert(optionsToUpsert)
-                        if (optError) throw optError
+                        const existingOptions = optionsToUpsert.filter(o => o.id)
+                        const newOptions = optionsToUpsert.filter(o => !o.id)
+
+                        if (existingOptions.length > 0) {
+                            const { error: updateError } = await supabase
+                                .from('poll_options')
+                                .upsert(existingOptions)
+                            if (updateError) throw updateError
+                        }
+
+                        if (newOptions.length > 0) {
+                            const { error: insertError } = await supabase
+                                .from('poll_options')
+                                .insert(newOptions)
+                            if (insertError) throw insertError
+                        }
                     }
                 }
             }
