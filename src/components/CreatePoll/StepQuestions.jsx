@@ -73,10 +73,14 @@ const QuestionItem = ({ q, index, updateQuestion, removeQuestion }) => {
                                         className="input-glass"
                                         style={{ padding: '8px', fontSize: '0.9rem', background: 'transparent', borderBottom: '1px solid #ccc', borderRadius: 0 }}
                                         placeholder={`Option ${optIndex + 1}`}
-                                        value={opt}
+                                        value={typeof opt === 'object' ? opt.text : opt}
                                         onChange={e => {
                                             const newOpts = [...q.options]
-                                            newOpts[optIndex] = e.target.value
+                                            if (typeof newOpts[optIndex] === 'object') {
+                                                newOpts[optIndex] = { ...newOpts[optIndex], text: e.target.value }
+                                            } else {
+                                                newOpts[optIndex] = e.target.value
+                                            }
                                             updateQuestion(index, { ...q, options: newOpts })
                                         }}
                                     />
